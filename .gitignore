@@ -1,0 +1,12 @@
+# Binaries
+/firefox-bookmarks
+
+# Ignoring all JSON files since no required configs in JSON format
+*.json
+
+# Test related files
+cover.out
+
+# Temporary files
+places.sqlite*
+*.sqlite
