@@ -8,7 +8,7 @@ build-firefox-bookmarks:
 run-firefox-bookmarks: build-firefox-bookmarks
 	@ ./firefox-bookmarks \
 		--sqlite-filename $(shell find ~/.var/app/org.mozilla.firefox/ -name 'places.sqlite') \
-		--normalize \
+		--raw=false \
 		--ignore-defaults \
 		--write-to-file \
 		--output-filename "firefox-bookmarks.json" \

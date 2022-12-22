@@ -34,16 +34,17 @@ const (
 				ON places.id = bookmarks.fk`
 )
 
-func NewDatabaseOperator(conn sqlite.DBConnection, normalize, ignoreDefaults bool) BookmarkOperator {
+func NewDatabaseOperator(conn sqlite.DBConnection, rawoutput, ignoreDefaults bool) BookmarkOperator {
 	filters := make(filterMap)
 
 	d := DatabaseOperator{
 		db: conn,
 	}
 
-	if normalize {
-		filters[normalizeFilterName] = d.normalize
+	if rawoutput {
+		return &d
 	}
+	filters[denormalizeFilterName] = d.denormalize
 
 	if ignoreDefaults {
 		filters[defaultsCleanUpFilterName] = d.removeDefaults

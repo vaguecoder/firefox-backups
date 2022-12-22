@@ -68,11 +68,12 @@ func main() {
 		logger.Fatal().Err(err).Str("db-filename", placesDBFile).Msg("Failed to open DB connection")
 	}
 
-	dbOps := db.NewDatabaseOperator(dbConn, f.EnableNormalization, f.IgnoreDefaults)
+	dbOps := db.NewDatabaseOperator(dbConn, f.RawOutput, f.IgnoreDefaults)
 	bookmarks, err := dbOps.GetBookmarks(ctx)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Failed to fetch bookmarks from db")
 	}
+	logger.Info().Int("count", len(bookmarks)).Msg("Count of bookmarks fetched")
 
 	jsonEncoder := json.NewEncoder(outputFile)
 	jsonEncoder.SetIndent("", "\t")

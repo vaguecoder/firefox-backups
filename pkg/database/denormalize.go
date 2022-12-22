@@ -8,11 +8,11 @@ import (
 	"github.com/vaguecoder/firefox-backups/pkg/logs"
 )
 
-const normalizeFilterName filterName = "normalize"
+const denormalizeFilterName filterName = "denormalize"
 
-func (d *DatabaseOperator) normalize(ctx context.Context, bookmarks []bookmark) []bookmark {
+func (d *DatabaseOperator) denormalize(ctx context.Context, bookmarks []bookmark) []bookmark {
 	logger := logs.FromContext(ctx).With().Int("initial-count", len(bookmarks)).
-		Stringer("filter", normalizeFilterName).Logger()
+		Stringer("filter", denormalizeFilterName).Logger()
 
 	sort.Slice(bookmarks, func(i, j int) bool {
 		return bookmarks[i].id < bookmarks[j].id
