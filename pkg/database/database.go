@@ -80,5 +80,10 @@ func (d *DatabaseOperator) GetBookmarks(ctx context.Context) ([]bookmark, error)
 
 	logger.Info().Msg("Successfully executed query and scanned fields")
 
-	return d.applyFilters(ctx, bookmarks), nil
+	if err = d.applyFilters(ctx, &bookmarks); err != nil {
+		logger.Error().Err(err).Msg("Failed to apply filter(s)")
+		return nil, fmt.Errorf("failed to apply filter(s): %v", err)
+	}
+
+	return bookmarks, nil
 }

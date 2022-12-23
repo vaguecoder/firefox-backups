@@ -1,17 +1,19 @@
 package database
 
-import "context"
+import (
+	"context"
+)
 
 const (
 	mozillaFirefoxFolder                 = `menu/Mozilla Firefox`
 	defaultsCleanUpFilterName filterName = "defaults-clean-up"
 )
 
-func (d *DatabaseOperator) removeDefaults(ctx context.Context, bookmarks []bookmark) []bookmark {
+func (d *DatabaseOperator) removeDefaults(ctx context.Context, bookmarks *[]bookmark) error {
 	var result []bookmark
 	var mozillaFirefoxTitleId int
 
-	for _, b := range bookmarks {
+	for _, b := range *bookmarks {
 		if b.URL == nil {
 			continue
 		}
@@ -28,5 +30,7 @@ func (d *DatabaseOperator) removeDefaults(ctx context.Context, bookmarks []bookm
 		result = append(result, b)
 	}
 
-	return result
+	(*bookmarks) = result
+
+	return nil
 }

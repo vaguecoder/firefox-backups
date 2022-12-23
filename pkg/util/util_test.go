@@ -74,16 +74,25 @@ func TestMapKeys(t *testing.T) {
 }
 
 func TestToStringers(t *testing.T) {
-	tests := []struct {
-		name  string
+	type args struct {
 		elems []any
-		want  []fmt.Stringer
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []fmt.Stringer
+		wantErr bool
 	}{
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := util.ToStringers(tt.elems); !reflect.DeepEqual(got, tt.want) {
+			got, err := util.ToStringers(tt.args.elems)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ToStringers() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ToStringers() = %v, want %v", got, tt.want)
 			}
 		})

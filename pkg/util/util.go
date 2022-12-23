@@ -29,16 +29,18 @@ func MapKeys[K comparable, V any](m map[K]V) []K {
 	return keys
 }
 
-func ToStringers[T any](elems []T) []fmt.Stringer {
+func ToStringers[T any](elems []T) ([]fmt.Stringer, error) {
 	var stringers []fmt.Stringer
 
 	for _, e := range elems {
 		if c, ok := any(e).(fmt.Stringer); ok {
 			stringers = append(stringers, c)
+			continue
 		}
 
-		// Ignored if element doesn't implement fmt.Stringer interface
+		return nil, fmt.Errorf("element not a stringer: %+v", e)
+
 	}
 
-	return stringers
+	return stringers, nil
 }
