@@ -10,6 +10,10 @@ import (
 
 const denormalizeFilterName filterName = "denormalize"
 
+func init() {
+	AllFilters = append(AllFilters, denormalizeFilterName)
+}
+
 func (d *DatabaseOperator) denormalize(ctx context.Context, bookmarks *[]bookmark) error {
 	logger := logs.FromContext(ctx).With().Int("initial-count", len(*bookmarks)).
 		Stringer("filter", denormalizeFilterName).Logger()

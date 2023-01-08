@@ -40,14 +40,14 @@ func main() {
 	var outputFilename = stdout
 	cpOps := files.NewOperator(logger)
 
-	if f.WriteToFile {
-		outputFile, err = cpOps.Open(f.OutputJSONFilename)
+	if f.OutputFilename != nil {
+		outputFilename = *f.OutputFilename
+
+		outputFile, err = cpOps.Open(*f.OutputFilename)
 		if err != nil {
-			logger.Fatal().Err(err).Str("outputJSONFile", f.OutputJSONFilename).
+			logger.Fatal().Err(err).Str("outputJSONFile", *f.OutputFilename).
 				Msg("Failed to open file")
 		}
-
-		outputFilename = f.OutputJSONFilename
 	}
 
 	if f.SQLiteDBFilename != placesDBFile {

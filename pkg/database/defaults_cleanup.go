@@ -9,6 +9,10 @@ const (
 	defaultsCleanUpFilterName filterName = "defaults-clean-up"
 )
 
+func init() {
+	AllFilters = append(AllFilters, defaultsCleanUpFilterName)
+}
+
 func (d *DatabaseOperator) removeDefaults(ctx context.Context, bookmarks *[]bookmark) error {
 	var result []bookmark
 	var mozillaFirefoxTitleId int
