@@ -16,21 +16,16 @@ func (q quotedString) String() string {
 	return fmt.Sprintf(`"%s"`, string(q))
 }
 
+func ToQuotedString(s fmt.Stringer) quotedString {
+	return quotedString(s.String())
+}
+
 func description[T flagTypes](usage string, defaultVal T, additionals []string) string {
-	var desc string = fmt.Sprintf("%s (default %v)", usage, defaultVal)
+	desc := fmt.Sprintf("%s (default %v)", usage, defaultVal)
 
 	for _, a := range additionals {
-		desc += fmt.Sprintf("\n* %s", a)
+		desc += fmt.Sprintf("\n%s", a)
 	}
 
 	return desc
-}
-
-func contains[T comparable](value T, list []T) bool {
-	for _, elem := range list {
-		if elem == value {
-			return true
-		}
-	}
-	return false
 }

@@ -2,49 +2,20 @@ package flags
 
 import (
 	"flag"
-	"fmt"
 
-	"github.com/vaguecoder/firefox-backups/pkg/database"
+	"github.com/vaguecoder/firefox-backups/pkg/constants"
 	"github.com/vaguecoder/firefox-backups/pkg/encoding"
-	_ "github.com/vaguecoder/firefox-backups/pkg/encoding/csv"
-	_ "github.com/vaguecoder/firefox-backups/pkg/encoding/json"
-	"github.com/vaguecoder/firefox-backups/pkg/encoding/tabular"
-	_ "github.com/vaguecoder/firefox-backups/pkg/encoding/yaml"
-)
-
-const (
-	silentFlagDefaultVal          = false
-	inputSQLiteFileFlagDefaultVal = "places.sqlite"
-	outputFilenameFlagDefaultVal  = ""
-	rawFlagDefaultVal             = false
-	ignoreDefaultsFlagDefaultVal  = false
-)
-
-var (
-	outputFormatFlagDefaultVal = quotedString(tabular.EncoderName.String())
-)
-
-var (
-	silentFlagDesc = description(`Discard/suppress all the app logs`,
-		silentFlagDefaultVal, []string{`Enabled by default if writing to stdout`})
-	inputSQLiteFileFlagDesc = description[quotedString](`Input places.sqlite file path`, inputSQLiteFileFlagDefaultVal, nil)
-	outputFilenameFlagDesc  = description[quotedString]("Output filename",
-		outputFilenameFlagDefaultVal, []string{`Empty value "" will write output to stdout`})
-	rawFlagDesc = description("Fetch all bookmarks without filtering",
-		rawFlagDefaultVal, []string{fmt.Sprintf("Available filters: [%s]", database.AllFilters)})
-	ignoreDefaultsFlagDesc = description("Ignore the default mozilla bookmarks from result",
-		ignoreDefaultsFlagDefaultVal, []string{`Overwritten as false if --raw is enabled`})
-	outputFormatFlagDesc = description(`Output data format`,
-		outputFormatFlagDefaultVal, []string{fmt.Sprintf("Available formats: [%s]", encoding.AllEncoders)})
+	_ "github.com/vaguecoder/firefox-backups/pkg/filters/denormalize"
+	_ "github.com/vaguecoder/firefox-backups/pkg/filters/ignore-defaults"
 )
 
 type Flags struct {
-	SQLiteDBFilename string  `json:"input-sqlite-file"`
-	OutputFilename   *string `json:"output-filename"`
-	RawOutput        bool    `json:"raw"`
-	IgnoreDefaults   bool    `json:"ignore-defaults"`
-	Silent           bool    `json:"silent"`
-	OutputFormat     string  `json:"output-format"`
+	SQLiteDBFilename     string               `json:"input-sqlite-file"`
+	RawOutput            bool                 `json:"raw"`
+	Silent               bool                 `json:"silent"`
+	OutputFormat         encoding.EncoderName `json:"output-format"`
+	FilterIgnoreDefaults bool                 `json:"ignore-defaults"`
+	FilterDenormalize    bool                 `json:"denormalize"`
 }
 
 type Operator struct {
@@ -60,54 +31,42 @@ func NewOperator(args []string) *Operator {
 }
 
 func (o *Operator) Parse() (*Flags, error) {
-	var f = Flags{
-		SQLiteDBFilename: "",
-		OutputFilename:   ptrToStr(""),
-		RawOutput:        false,
-		IgnoreDefaults:   false,
-		Silent:           false,
-		OutputFormat:     "",
-	}
+	var (
+		err error
 
-	o.flagSet.StringVar(&f.SQLiteDBFilename, "input-sqlite-file", "", inputSQLiteFileFlagDesc) // Lazy assignment of default value
-	o.flagSet.StringVar(f.OutputFilename, "output-filename", outputFilenameFlagDefaultVal, outputFilenameFlagDesc)
-	o.flagSet.BoolVar(&f.RawOutput, "raw", rawFlagDefaultVal, rawFlagDesc)
-	o.flagSet.BoolVar(&f.IgnoreDefaults, "ignore-defaults", ignoreDefaultsFlagDefaultVal, ignoreDefaultsFlagDesc)
-	o.flagSet.BoolVar(&f.Silent, "silent", silentFlagDefaultVal, silentFlagDesc)
-	o.flagSet.StringVar(&f.OutputFormat, "output-format", "", outputFormatFlagDesc) // Lazy assignment of default value
+		flags = Flags{
+			SQLiteDBFilename:     "",
+			RawOutput:            false,
+			FilterIgnoreDefaults: false,
+			Silent:               false,
+			OutputFormat:         "",
+		}
+		stdOutFormat string
+	)
 
-	if err := o.flagSet.Parse(o.args); err != nil {
+	o.flagSet.StringVar(&flags.SQLiteDBFilename, constants.InputSQLiteFileFlag.String(), "", inputSQLiteFileFlagDesc) // Lazy assignment of default value
+	o.flagSet.BoolVar(&flags.RawOutput, constants.RawFlag.String(), rawFlagDefaultVal, rawFlagDesc)
+	o.flagSet.BoolVar(&flags.Silent, constants.SilentFlag.String(), silentFlagDefaultVal, silentFlagDesc)
+	o.flagSet.StringVar(&stdOutFormat, constants.StdOutFormatFlag.String(), "", stdOutFormatFlagDesc) // Lazy assignment of default value
+
+	o.flagSet.BoolVar(&flags.FilterIgnoreDefaults, constants.IgnoreDefaultsFlag.String(), filterIgnoreDefaultsFlagDefaultVal, filterIgnoreDefaultsFlagDesc)
+	o.flagSet.BoolVar(&flags.FilterDenormalize, constants.DenormalizeFilter.String(), filterDenormalizeFlagDefaultVal, filterDenormalizeFlagDesc)
+
+	if err = o.flagSet.Parse(o.args); err != nil {
 		return nil, err
 	}
 
-	if f.SQLiteDBFilename == "" {
+	if flags.SQLiteDBFilename == "" {
 		// Input filename is missing; assign default
 		// Lazy assignment to avoid printing of default value in default format
-		f.SQLiteDBFilename = inputSQLiteFileFlagDefaultVal
+		flags.SQLiteDBFilename = inputSQLiteFileFlagDefaultVal
 	}
 
-	if f.OutputFormat == "" {
+	if stdOutFormat == "" {
 		// Output format is missing; assign default
 		// Lazy assignment to avoid printing of default value in default format
-		f.OutputFormat = outputFormatFlagDefaultVal.String()
+		stdOutFormat = outputFormatFlagDefaultVal.String()
 	}
 
-	switch {
-	case contains(encoding.EncoderName(f.OutputFormat), encoding.AllEncoders):
-	default:
-		return nil, fmt.Errorf("invalid output data format: %q", f.OutputFormat)
-	}
-
-	if *f.OutputFilename == "" {
-		// Empty output file means printing to stdout
-		f.OutputFilename = nil
-	}
-
-	if f.OutputFilename == nil {
-		// When writing to stdout, silent mode should be enabled by default
-		// Else, the app logs might coincide with output
-		f.Silent = true
-	}
-
-	return &f, nil
+	return &flags, nil
 }

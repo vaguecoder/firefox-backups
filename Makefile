@@ -10,8 +10,8 @@ run-firefox-bookmarks: build-firefox-bookmarks
 		--input-sqlite-file $(shell find ~/.var/app/org.mozilla.firefox/ -name 'places.sqlite') \
 		--raw=false \
 		--ignore-defaults \
-		--output-filename "firefox-bookmarks.json" \
-		--silent=false
+		--denormalize \
+		--silent
 
 .PHONY: unit-test
 unit-test:
