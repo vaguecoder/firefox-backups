@@ -3,6 +3,7 @@ package util
 import (
 	"fmt"
 	"regexp"
+	"strings"
 )
 
 const (
@@ -43,4 +44,27 @@ func ToStringers[T any](elems []T) ([]fmt.Stringer, error) {
 	}
 
 	return stringers, nil
+}
+
+func AppendAll(strs ...interface{}) []string {
+	var result []string
+	for _, s := range strs {
+		switch v := s.(type) {
+		case string:
+			result = append(result, v)
+		case []string:
+			result = append(result, v...)
+		default:
+			// Ignored.
+			// Should be the caller's responsibility to send only accepted types.
+			// No return error as this function is expected to be used in arguments
+			//  or global variables similar to built-in append().
+		}
+	}
+
+	return result
+}
+
+func Whitespace(n uint) string {
+	return strings.Repeat(` `, int(n))
 }

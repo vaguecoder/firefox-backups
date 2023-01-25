@@ -1,8 +1,8 @@
 # Binaries
 /firefox-bookmarks
 
-# Ignoring all JSON files since no required configs in JSON format
-*.json
+# Ignoring all sample output files
+firefox-backups*.*
 
 # Test related files
 cover.out

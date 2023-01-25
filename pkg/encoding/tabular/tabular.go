@@ -9,6 +9,7 @@ import (
 	"github.com/vaguecoder/firefox-backups/pkg/bookmark"
 	"github.com/vaguecoder/firefox-backups/pkg/constants"
 	"github.com/vaguecoder/firefox-backups/pkg/encoding"
+	"github.com/vaguecoder/firefox-backups/pkg/files"
 )
 
 var EncoderName = encoding.ToEncoder(constants.TabularFormat)
@@ -20,13 +21,20 @@ func init() {
 type Encoder struct {
 	tabEncoder   *tabwriter.Writer
 	enableHeader bool
+	filename     string
 }
 
 func NewEncoder(out io.Writer, header bool) *Encoder {
+	var filename string
+	if file, ok := any(out).(files.File); ok {
+		filename = file.Name()
+	}
+
 	encoder := tabwriter.NewWriter(out, 0, 8, 8, ' ', tabwriter.TabIndent)
 	return &Encoder{
 		tabEncoder:   encoder,
 		enableHeader: header,
+		filename:     filename,
 	}
 }
 
@@ -45,4 +53,8 @@ func (e *Encoder) Encode(bookmarks []bookmark.Bookmark) error {
 
 func (e *Encoder) String() string {
 	return EncoderName.String()
+}
+
+func (e *Encoder) Filename() string {
+	return e.filename
 }

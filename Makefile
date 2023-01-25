@@ -11,7 +11,9 @@ run-firefox-bookmarks: build-firefox-bookmarks
 		--raw=false \
 		--ignore-defaults \
 		--denormalize \
-		--silent
+		--silent=false \
+		--stdout-format="" \
+		--output-files=yaml:firefox-backups.yaml,json:firefox-backups.json,table:firefox-backups.txt,csv:firefox-backups.csv,json:firefox-backups-copy.json
 
 .PHONY: unit-test
 unit-test:

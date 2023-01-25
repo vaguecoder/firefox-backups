@@ -38,4 +38,5 @@ const (
 	SilentFlag          Constant[Flag] = `silent`
 	StdOutFormatFlag    Constant[Flag] = `stdout-format`
 	DenormalizeFlag     Constant[Flag] = `denormalize`
+	OutputFiles         Constant[Flag] = `output-files`
 )

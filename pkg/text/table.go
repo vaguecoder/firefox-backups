@@ -1,4 +1,4 @@
-package table
+package text
 
 import (
 	"strings"
@@ -13,17 +13,18 @@ const (
 // Table prints the input data in tabulated format.
 // The characters `|` & `-` are used as horizontal & verticle delimiters
 // of the table respectively.
-func Table(data [][]string, headerSeperator bool) []string {
+func Table(data [][]string, headerSeperator bool, lineStart string) []string {
 	if len(data) == 0 {
 		// When there are no records in table
 		return []string{}
 	}
 
 	var (
+		index                          int
 		columnLengthMap                map[uint]uint
 		sumOfColumnLengths, tableWidth uint
 		recordLines, table             []string
-		horizontalLine                 string
+		horizontalLine, cell           string
 
 		// Table border characters and seperators
 		leadingDelimiter  = pipe + whitespace
@@ -45,14 +46,21 @@ func Table(data [][]string, headerSeperator bool) []string {
 		((len(columnLengthMap) - 1) * len(verticleSeperator)) +
 		len(leadingDelimiter) + len(trailingDelimiter))
 
+	// Convert header cells to upper case
+	if headerSeperator {
+		for index, cell = range data[0] {
+			data[0][index] = strings.ToUpper(cell)
+		}
+	}
+
 	// Create horizontal seperator line `-----` with total length. This will be used in
 	// 		1. First line of table
 	// 		2. Optionally, header seperator
 	// 		3. Last line of table
-	horizontalLine = buildHorizontalLine(tableWidth, hyphen)
+	horizontalLine = lineStart + buildHorizontalLine(tableWidth, hyphen)
 
 	// Build data record's lines with leading, trailing and verticle seperators
-	recordLines = buildRecordLines(data, verticleSeperator, leadingDelimiter, trailingDelimiter, columnLengthMap)
+	recordLines = buildRecordLines(data, verticleSeperator, lineStart+leadingDelimiter, trailingDelimiter, columnLengthMap)
 
 	// Add table start horizontal line and header record to result
 	table = append(table, horizontalLine, recordLines[0])

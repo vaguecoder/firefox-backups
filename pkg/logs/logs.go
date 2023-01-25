@@ -84,9 +84,18 @@ func newLogger(out io.Writer, level level) Logger {
 	return &logger
 }
 
+// SilentLogger creates a new logger that discards all the output.
+// This doesn't serve the logger functionality,  but is used in places
+// where the silent logger would replace the actual logger object,
+// and suppress all the output.
 func SilentLogger(ctx context.Context) (context.Context, Logger) {
 	silentLogger := newLogger(io.Discard, defaultLevel)
 	ctx = context.WithValue(ctx, key{}, silentLogger)
 
 	return ctx, silentLogger
+}
+
+// FromRawLogger creates Logger type from zerolog Logger
+func FromRawLogger(l zerolog.Logger) Logger {
+	return &l
 }

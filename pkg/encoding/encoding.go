@@ -46,5 +46,6 @@ func ToEncoder(s fmt.Stringer) EncoderName {
 
 type Encoder interface {
 	Encode([]bookmark.Bookmark) error
+	Filename() string
 	fmt.Stringer
 }

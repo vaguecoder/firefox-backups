@@ -23,6 +23,7 @@ type File interface {
 	io.Reader
 	io.Writer
 	io.Closer
+	Name() string
 }
 
 func NewOperator(l logs.Logger) FileOperator {
