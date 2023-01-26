@@ -11,11 +11,14 @@ const (
 	whitespace      = ` `
 )
 
+// StrWhitespacesCleanup replaces multiple
+// whitespaces/tab/newlines with single whitespace.
 func StrWhitespacesCleanup(s string) string {
 	space := regexp.MustCompile(whitespaceRegex)
 	return space.ReplaceAllString(s, whitespace)
 }
 
+// MapKeys returns slice of keys from map of any type
 func MapKeys[K comparable, V any](m map[K]V) []K {
 	keys := make([]K, 0)
 
@@ -30,6 +33,8 @@ func MapKeys[K comparable, V any](m map[K]V) []K {
 	return keys
 }
 
+// ToStringers wraps elements of input slice with stringer type,
+// provided, all the elements on input slice should implement fmt.Stringer.
 func ToStringers[T any](elems []T) ([]fmt.Stringer, error) {
 	var stringers []fmt.Stringer
 
@@ -46,6 +51,7 @@ func ToStringers[T any](elems []T) ([]fmt.Stringer, error) {
 	return stringers, nil
 }
 
+// AppendAll appends strings and slice of strings together into slice of strings
 func AppendAll(strs ...interface{}) []string {
 	var result []string
 	for _, s := range strs {
@@ -65,6 +71,12 @@ func AppendAll(strs ...interface{}) []string {
 	return result
 }
 
+// Whitespace returns whitespace string of length n
 func Whitespace(n uint) string {
 	return strings.Repeat(` `, int(n))
+}
+
+// PtrStr returns pointer to string
+func PtrStr(s string) *string {
+	return &s
 }
