@@ -8,5 +8,5 @@ firefox-backups*.*
 cover.out
 
 # Temporary files
-places.sqlite*
-*.sqlite
+/places.sqlite*
+/*.sqlite

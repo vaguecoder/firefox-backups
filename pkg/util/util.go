@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"golang.org/x/exp/constraints"
 )
 
 const (
@@ -79,4 +81,9 @@ func Whitespace(n uint) string {
 // PtrStr returns pointer to string
 func PtrStr(s string) *string {
 	return &s
+}
+
+// PtrInt
+func PtrInt[T constraints.Integer](i T) *T {
+	return &i
 }

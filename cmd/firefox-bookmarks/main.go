@@ -68,7 +68,7 @@ func main() {
 	logger.Info().Interface("flags", inputFlags).Msg("Input flags")
 
 	// Initiate files operator for file creation, copying, deletion, etc.
-	fileOps = files.NewOperator(logger)
+	fileOps = files.NewOperator(ctx)
 
 	if inputFlags.SQLiteDBFilename != placesDBFile {
 		// When input sqlite DB file is not same as places.sqlite,

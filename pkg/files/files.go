@@ -1,8 +1,10 @@
 package files
 
 import (
+	"context"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 
@@ -17,6 +19,7 @@ type FileOperator interface {
 	Copy(src, dest string) error
 	Delete(filename string) error
 	Open(filename string) (File, error)
+	Chmod(filename string, permission int) (ChmodRevertFunc, error)
 }
 
 type File interface {
@@ -26,9 +29,9 @@ type File interface {
 	Name() string
 }
 
-func NewOperator(l logs.Logger) FileOperator {
+func NewOperator(ctx context.Context) FileOperator {
 	return &Operator{
-		logger: l,
+		logger: logs.FromContext(ctx),
 	}
 }
 
@@ -95,4 +98,38 @@ func (o *Operator) Open(filename string) (File, error) {
 	o.logger.Info().Msg("Successfully opened/created file")
 
 	return file, nil
+}
+
+type ChmodRevertFunc func(filename string) (os.FileMode, error)
+
+func (o *Operator) Chmod(filename string, permission int) (ChmodRevertFunc, error) {
+	fileStat, err := os.Stat(filename)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch file %q 's stats: %v", filename, err)
+	}
+
+	revertFunc := func(filename string) (os.FileMode, error) {
+		fileMode := fileStat.Mode()
+		if err := chmod(filename, fileMode); err != nil {
+			return fileMode, err
+		}
+
+		return fileMode, nil
+	}
+
+	if err = chmod(filename, fs.FileMode(permission)); err != nil {
+		return nil, fmt.Errorf("failed to change the file %q 's permissions: %v", filename, err)
+	}
+
+	return revertFunc, nil
+}
+
+func chmod(filename string, permission fs.FileMode) error {
+	err := os.Chmod(filename, permission)
+	if err != nil {
+		return fmt.Errorf("failed to change the permissions of %q to %d: %v",
+			filename, permission, err)
+	}
+
+	return nil
 }
