@@ -25,27 +25,28 @@ const (
 				ON places.id = bookmarks.fk`
 )
 
-func NewDatabaseOperator(conn sqlite.DBConnection, rawoutput, ignoreDefaults bool) BookmarkOperator {
+func NewDatabaseOperator(conn sqlite.DBConnection) BookmarkOperator {
 	return &DatabaseOperator{
 		db: conn,
 	}
 }
 
 func (d *DatabaseOperator) GetBookmarks(ctx context.Context) ([]bookmark.Bookmark, error) {
-	logger := logs.FromContext(ctx).With().
-		Str("query", util.StrWhitespacesCleanup(queryStr)).Logger()
+	logger := logs.FromContext(ctx)
 
-	query, err := d.db.Query(queryStr)
+	logger.Info().Str("query", util.StrWhitespacesCleanup(queryStr)).Msg("Bookmarks query string")
+
+	rows, err := d.db.Query(queryStr)
 	if err != nil {
 		logger.Error().Err(err).Msg("Failed to query DB")
 		return nil, fmt.Errorf("failed to query db: %v", err)
 	}
 
 	var bookmarks []bookmark.Bookmark
-	for query.Next() {
+	for rows.Next() {
 		var bm bookmark.Bookmark
 
-		err = query.Scan(&bm.ID, &bm.Parent, &bm.URL, &bm.Title)
+		err = rows.Scan(&bm.ID, &bm.Parent, &bm.URL, &bm.Title)
 		if err != nil {
 			logger.Error().Err(err).Msg("Failed to execute query")
 			return nil, fmt.Errorf("failed to execute query: %v", err)
@@ -54,6 +55,7 @@ func (d *DatabaseOperator) GetBookmarks(ctx context.Context) ([]bookmark.Bookmar
 		bookmarks = append(bookmarks, bm)
 	}
 
+	logger.Debug().Interface("bookmarks", bookmarks).Msg("Resultant bookmarks")
 	logger.Info().Msg("Successfully executed query and scanned fields")
 
 	return bookmarks, nil

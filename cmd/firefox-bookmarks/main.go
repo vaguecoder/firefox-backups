@@ -98,7 +98,7 @@ func main() {
 	}
 
 	// Initiate database operator
-	dbOps = db.NewDatabaseOperator(dbConn, inputFlags.RawOutput, inputFlags.FilterIgnoreDefaults)
+	dbOps = db.NewDatabaseOperator(dbConn)
 	bookmarks, err = dbOps.GetBookmarks(ctx)
 	if err != nil {
 		// When initialization of database operator failed
