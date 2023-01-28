@@ -1,7 +1,9 @@
 package util
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"regexp"
 	"strings"
 
@@ -9,9 +11,22 @@ import (
 )
 
 const (
-	whitespaceRegex = `\s+`
-	whitespace      = ` `
+	whitespaceRegex      = `\s+`
+	whitespace           = ` `
+	lfChar          byte = 0xa
 )
+
+// StrsWhitespacesCleanup replaces multiple
+// whitespaces/tab/newlines with single
+// whitespace in all strings are slice
+func StrsWhitespacesCleanup(strs []string) []string {
+	var result []string
+	for _, s := range strs {
+		result = append(result, StrWhitespacesCleanup(s))
+	}
+
+	return result
+}
 
 // StrWhitespacesCleanup replaces multiple
 // whitespaces/tab/newlines with single whitespace.
@@ -83,7 +98,29 @@ func PtrStr(s string) *string {
 	return &s
 }
 
-// PtrInt
+// PtrInt returns the reference to integer of any type
 func PtrInt[T constraints.Integer](i T) *T {
 	return &i
+}
+
+// NonFileWriter is a wrapper over IO writer.
+// This is for registering the interface for mocking.
+type NonFileWriter interface {
+	io.Writer
+}
+
+// StringSliceToFlatBytes joins string slice
+// together with line feed (LF) character,
+// making it []byte data.
+// LF character in unix systems = 0xa
+func StringSliceToFlatBytes(lines []string) []byte {
+	var byteLine [][]byte
+
+	for _, line := range lines {
+		byteLine = append(byteLine, []byte(line))
+	}
+
+	byteLines := bytes.Join(byteLine, []byte{lfChar})
+
+	return append(byteLines, lfChar)
 }
