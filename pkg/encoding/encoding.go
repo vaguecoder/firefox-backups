@@ -8,6 +8,8 @@ import (
 	"github.com/vaguecoder/firefox-backups/pkg/bookmark"
 )
 
+const encoderNamesDelimiter = `, `
+
 // EncoderName holds encoder's name
 type EncoderName string
 
@@ -31,7 +33,7 @@ func (e encoderNames) String() string {
 
 	sort.Strings(encoders)
 
-	return strings.Join(encoders, ", ")
+	return strings.Join(encoders, encoderNamesDelimiter)
 }
 
 // AllEncoders holds list of encoder names.
@@ -44,6 +46,13 @@ func ToEncoder(s fmt.Stringer) EncoderName {
 	return EncoderName(s.String())
 }
 
+// Encoder holds the signatures to custom encoder types.
+// This has the following methods:
+//  1. Encode - Encodes bookmarks to target output format
+//     and writes to already mentioned output stream.
+//  2. Filename - If the output stream is of a local
+//     package files's File type, this returns the filename.
+//  3. String (in fmt.Stringer) - Returns the encoder name.
 type Encoder interface {
 	Encode([]bookmark.Bookmark) error
 	Filename() string

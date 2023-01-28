@@ -124,3 +124,28 @@ func StringSliceToFlatBytes(lines []string) []byte {
 
 	return append(byteLines, lfChar)
 }
+
+// Joinables holds the types which are required
+// to be joined together as string.
+// Currently, it only has fmt.Stringer as required in project.
+type Joinables interface {
+	fmt.Stringer
+}
+
+// JoinAsString joins the Joinables type elements together
+// with string seperator to return string value.
+// Currently, it only has logic for fmt.Stringer alone.
+func JoinAsString[E Joinables](elements []E, sep string) string {
+	var joined string
+	switch any(elements[0]).(type) {
+	case fmt.Stringer:
+		var strs []string
+		for _, elem := range elements {
+			strs = append(strs, elem.String())
+		}
+
+		joined = strings.Join(strs, sep)
+	}
+
+	return joined
+}
