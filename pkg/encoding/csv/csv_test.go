@@ -159,8 +159,6 @@ func TestEncoder_Encode(t *testing.T) {
 				isErrorAtCSVWriteAll: false,
 			},
 		},
-
-		//
 		{
 			name: "Valid-Case-Enable-Header",
 			fields: fields{
@@ -269,9 +267,6 @@ func TestEncoder_Encode(t *testing.T) {
 				isErrorAtCSVWriteAll: false,
 			},
 		},
-
-		//
-
 		{
 			name: "Failure-At-CSV-Write-All",
 			fields: fields{
@@ -356,11 +351,11 @@ func TestEncoder_Encode(t *testing.T) {
 				csvWriteAllErr         error = nil
 			)
 
-			filename = ""
 			if testCase.toggles.isErrorAtCSVWriteAll {
 				csvWriteAllErr = fmt.Errorf("some error")
 			}
 
+			filename = ""
 			if testCase.toggles.isFileWriter {
 				filename = testCase.fields.filename
 				fileWriter.On("Name").Return(testCase.fields.filename).Once()
