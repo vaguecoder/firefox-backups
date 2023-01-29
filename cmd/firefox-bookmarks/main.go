@@ -130,7 +130,7 @@ func main() {
 	}
 
 	// Initialize encoder manager and add bookmarks to manager
-	encoderManager = pkgEncoding.NewEncoderManager().Bookmarks(bookmarks)
+	encoderManager = pkgEncoding.NewEncoderManager(ctx).Bookmarks(bookmarks)
 
 	if inputFlags.StdOutFormat != nil {
 		// When stdout printer is also enabled
@@ -170,7 +170,7 @@ func main() {
 	}
 
 	// Encode bookmarks against all output formats (stdout or file formats)
-	err = encoderManager.Write(ctx)
+	err = encoderManager.Write()
 	if err != nil {
 		// When encoding bookmarks failed
 		logger.Fatal().Err(err).Msg("Failed to encode bookmarks to output stream(s)")
